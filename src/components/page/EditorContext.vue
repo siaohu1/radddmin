@@ -20,29 +20,19 @@
                 <div class="context-name">BTC</div>
                 <div class="context-button">
                     <!--<el-button @click="saveChap()">保存草稿</el-button>-->
-                    <el-button @click="addChap()" >保存发布</el-button>
+                    <el-button @click="saveChap">保存发布</el-button>
                 </div>
             </div>
             <div class="context-bottom">
                 <div class="item-list">
-                    <ul v-for="list in chapterLists">
-                        <li @click="n=list.chapterId">{{list.chapterTitle}}<span @click="delChap(list.chapterId)">x</span></li>
+                    <ul v-for="(list, index) in chapterLists">
+                        <li @click="editChap(index)">{{list.chapterTitle}}<span @click="delChap(list.chapterId)">x</span></li>
                     </ul>
-                    <div class="addCount" @click="n=999">
-                        <el-input type="text" v-model="chapName" placeholder="添加章节"></el-input>
+                    <div class="addCount" @click="">
+                        <el-input type="text" v-model="newChapName" placeholder="添加章节"></el-input>
                     </div>
                 </div>
-
-                <div class="editor-context" v-for="list in chapterLists" v-show="n===list.chapterId">
-                    <el-input
-                        type="textarea"
-                        :rows="25"
-                        placeholder="请输入内容"
-                        v-model="list.chapterContent"
-                    >
-                    </el-input>
-                </div>
-                <div class="editor-context"  v-show="n===999">
+                <div class="editor-context">
                     <el-input
                         type="textarea"
                         :rows="25"
@@ -66,11 +56,17 @@
                 textarea: '',
                 chapName:'',
                 chapterLists:[],
-                n:'',
+                curId: '',
+                newChapName: ''
             }
         },
         mounted(){
             this.getChapterLists();
+        },
+        watch: {
+          newChapName(val) {
+            this.chapName = val
+          }
         },
         methods:{
             getChapterLists(projectId = this.$route.query.id){
@@ -88,22 +84,16 @@
                     this.getChapterLists();
                 })
             },
-            addChap(projectId = this.$route.query.id){
-                apiRequest.ediChap({
-                    projectId,
-                    chapter_title:this.chapName,
-                    chapter_content:this.textarea,
-                    status:1,
-                }).then(()=>{
-                    alert('发不成功');
-                    this.chapName='';
-                    this.textarea=''
-                    this.getChapterLists();
-                })
+            editChap(index) {
+              this.curId = this.chapterLists[index].chapterId
+              this.textarea = this.chapterLists[index].chapterContent
+              this.chapName = this.chapterLists[index].chapterTitle
             },
-            saveChap(projectId = this.$route.query.id){
+            saveChap(){
+              let projectId = this.$route.query.id
                 apiRequest.ediChap({
                     projectId,
+                    charpterId: this.curId || undefined,
                     chapter_title:this.chapName,
                     chapter_content:this.textarea,
                     status:0,
@@ -111,6 +101,8 @@
                     alert('保存草稿成功')
                     this.chapName='';
                     this.textarea=''
+                    this.curId = ''
+                    this.chapName = ''
                     this.getChapterLists();
                 })
             },

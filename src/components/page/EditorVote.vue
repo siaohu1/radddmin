@@ -22,6 +22,7 @@
                 :http-request="requestImg"
                 :before-upload="beforeAvatarUpload"
                 enctype="multipart/form-data"
+                :file-list="imageUrl ? [{name: 'votePic', url: imageUrl}] : []"
                 list-type="picture-card">
                 <i class="el-icon-plus"></i>
             </el-upload>
@@ -77,6 +78,7 @@
                 }).then(data=>{
                     this.itemName= data.voteName;
                     this.imageUrl = data.votePic
+                    this.uploadImg = data.votePic
                     console.log(this.dialogImageUrl)
                 })
             },
@@ -124,7 +126,7 @@
                     if (xhr.status === 200) {
                         let responseText  =  xhr.responseText;
                         let responseData  = JSON.parse(responseText);
-                        this.imageUrl = responseData.data.url;
+                        this.uploadImg = responseData.data.url;
                     }
                 }
             },
